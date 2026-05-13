@@ -1,0 +1,25 @@
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: edge-ml-volcano-job
+  namespace: default
+spec:
+  minAvailable: 1
+  schedulerName: volcano  # 기본 K8s 스케줄러가 아닌 Volcano 엔진을 명시적으로 호출
+  tasks:
+    - replicas: 1
+      name: data-preprocess
+      template:
+        spec:
+          containers:
+            - name: worker
+              image: alpine:latest
+              command: ["/bin/sh", "-c"]
+              args: 
+                - |
+                  echo "🚀 MLOps Pipeline Triggered via GitOps!"
+                  echo "🧠 Volcano Scheduler is now managing this workload."
+                  echo "⏳ Simulating Data Preprocessing... (15 seconds)"
+                  sleep 15
+                  echo "✅ Task Completed Successfully!"
+          restartPolicy: Never
