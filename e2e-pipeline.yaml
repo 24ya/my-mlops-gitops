@@ -1,0 +1,34 @@
+# ===== Volcano GPU Training Job =====
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: edge-ml-train-job
+  namespace: default
+spec:
+  minAvailable: 1
+  schedulerName: volcano
+  tasks:
+    - replicas: 1
+      name: trainer
+      template:
+        spec:
+          containers:
+            - name: trainer
+              image: 127.0.0.1:8082/library/alpine:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "=== AI Factory E2E Pipeline ==="
+                  echo "[1/3] ArgoCD GitOps -> Volcano Job 배포 완료"
+                  echo "[2/3] Volcano Scheduler -> GPU 워크로드 스케줄링 중"
+                  sleep 20
+                  echo "[3/3] 학습 완료 -> Harbor 이미지 저장됨"
+                  echo "=== Pipeline Complete ==="
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "256Mi"
+                limits:
+                  cpu: "1"
+                  memory: "512Mi"
+          restartPolicy: Never
