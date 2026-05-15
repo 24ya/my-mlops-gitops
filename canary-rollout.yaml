@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: edge-ml-canary
+  namespace: kubeflow-user-example-com
+spec:
+  replicas: 3
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {duration: 30s}
+      - setWeight: 50
+      - pause: {duration: 30s}
+      - setWeight: 100
+      canaryMetadata:
+        labels:
+          deployment: canary
+      stableMetadata:
+        labels:
+          deployment: stable
+  selector:
+    matchLabels:
+      app: edge-ml-canary
+  template:
+    metadata:
+      labels:
+        app: edge-ml-canary
+    spec:
+      containers:
+      - name: inference
+        image: 127.0.0.1:8082/library/alpine:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "=== Canary Deployment ==="
+            echo "Model version: v2 (canary)"
+            echo "Serving inference requests..."
+            sleep 3600
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
